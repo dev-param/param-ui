@@ -2,42 +2,87 @@
 
 
 <template>
-    {{ v }}
+ 
     <div ref="divEl" class="flex flex-wrap justify-center gap-2">
-        <input v-for="al in aLength" v-model="v[al - 1]" maxlength="1"
-            class="w-10 text-center border dark:border-gray-900 outline-none rounded-xl p-9"
-            @input="(e: Event) => inputChanged(e, al)" />
+        <input v-for="al in inputAttr.maxLength" v-model="v.data[al - 1]" maxlength="1"
+            class="w-16 text-center border dark:border-gray-500 outline-none rounded-xl  p-4 focus:border-primary focus:dark:border-primary"
+            @input="(e: Event) => inputChanged(e,)" @paste="pasteHandler" />
     </div>
 </template>
 
 
 <script setup lang="ts">
-const aLength = 5
-const v = reactive([])
-const divEl = ref<HTMLDivElement | null>(null)
+import { onMounted, reactive, ref, watch } from '#imports';
 
-function focusPreInput(e: InputEvent, key: number) {
+interface InputAttrType{
+    maxLength?: number
+}
+interface PropTypes{
+    inputAttr?: InputAttrType
+}
+const props = withDefaults(defineProps<PropTypes>(), {
+    inputAttr: ()=>({
+        maxLength: 4
+    })
+});
+const model = defineModel()
+const v = reactive({
+    data: []
+})
+
+watch(()=>v.data, (newData)=>{
+    console.log(newData)
+    model.value = newData
+})
+
+
+
+
+onMounted(()=>{
+    v.data = [].fill("l", 0, props.inputAttr.maxLength)
+})
+
+
+
+
+
+
+
+
+function pasteHandler(event: ClipboardEvent){
+    event.preventDefault();
+    let pasteText = event.clipboardData.getData('text/plain');
+    if (pasteText.split("").length === props.inputAttr.maxLength){
+        v.data = pasteText.split("")
+    }
+}
+
+
+
+function focusPreInput(e: InputEvent) {
 
     const prevNodeName = (e.target as HTMLInputElement).previousSibling?.nodeName ?? ""
     if (prevNodeName === "INPUT") {
-        (divEl.value?.childNodes[key].previousSibling as HTMLInputElement).focus()
+        ((e.target as HTMLInputElement).previousSibling as HTMLInputElement).focus()
     }
 }
-function focusNextInput(e: InputEvent, key: number) {
+function focusNextInput(e: InputEvent, ) {
 
-    const prevNodeName = (e.target as HTMLInputElement).nextSibling?.nodeName ?? ""
-    if (prevNodeName === "INPUT") {
-        (divEl.value?.childNodes[key].nextSibling as HTMLInputElement).focus()
+    const NextNodeName = (e.target as HTMLInputElement).nextSibling?.nodeName ?? ""
+    if (NextNodeName === "INPUT") {
+        ((e.target as HTMLInputElement).nextSibling as HTMLInputElement).focus()
     }
 }
 
-function inputChanged(e: Event, key: number) {
+function inputChanged(e: Event) {
+ 
+   
 
     if ((e as InputEvent).inputType === "deleteContentBackward") {
-        focusPreInput((e as InputEvent), key)
+        focusPreInput((e as InputEvent))
         return 0
     }
-    focusNextInput((e as InputEvent), key)
+    focusNextInput((e as InputEvent))
 }
 
 
