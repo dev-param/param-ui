@@ -1,10 +1,16 @@
 <template>
-<!-- <PArrayInput v-model="j"/> -->
+    <!-- <PArrayInput v-model="j"/> -->
+    <PTopNavBar>
+        <template v-slot:title>
+            ParamUi
+        </template>
+        <div class="w-10 h-screen">
 
-<div class="w-10">
+            <PColorPlate />
+        </div>
 
-    <PColorPlate />
-</div>
+    </PTopNavBar>
+
 </template>
 <style>
 body {
